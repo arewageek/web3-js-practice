@@ -3,13 +3,41 @@ const express = require('express')
 const {Web3} = require('web3')
 require('dotenv').config()
 
+const funcs = require('./functions')
+
 const app = express()
 
 const ganache = 'localhost:8595'
 const port = process.env.PORT || 5000   
 
-const providers = new Web3.providers.HttpProvider(process.env.INFURA_COMPLETE_URL)  
-const web3 = new Web3(providers)
+const httpProvider = new Web3.providers.HttpProvider(process.env.INFURA_COMPLETE_URL)  
+const web3Http = new Web3(httpProvider)
+
+// const wsProvider = new Web3.providers.WebsocketProvider(process.env.INFURA_WS_URL)
+// const web3ws = new Web3(wsProvider)
+
+// let web3 = web3ws;
+
+// const switchProvider = () => {
+//     if(web3 == web3Http){
+//         web3 = web3ws
+//     }
+//     else if(web3 == web3ws){
+//         web3 = web3Http
+//     }
+//     else{
+//         web3 = web3Http
+//     }
+// }
+
+// web3ws.on('error', (e) => {
+//     console.error('Websocket Provider Error: ', e)
+//     switchProvider()
+// })
+// web3ws.on('end', () => {
+//     console.log('Websocket Connection Closed')
+//     switchProvider()
+// })
 
 app.get('/', async (req, res) => {
     const accounts = await web3.eth.getAccounts()
@@ -17,8 +45,8 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/balance', async(req, res) => {
-    const balanceInWei = await web3.eth.getBalance(req.query.account)
-    const balanceInEth = await web3.utils.fromWei(balanceInWei, 'ether')
+    const balanceInWei = await web3ws.eth.getBalance(req.query.account)
+    const balanceInEth = await web3ws.utils.fromWei(balanceInWei, 'ether')
     // res.send(balanceInWei)
     console.log(`Balance in Wei: ${balanceInWei} wei`)
     console.log(`Balance in Ethers  : ${balanceInEth} eth`)
@@ -27,6 +55,71 @@ app.get('/balance', async(req, res) => {
         eth: balanceInEth
     })
 })
+
+app.get('/balance/ws', async (req, res) => {
+    try{
+        // get initial balance
+        let balanceInWei = await web3.eth.getBalance(req.query.account)
+        let txHash
+
+        // subscription
+        const sub = {
+            address: req.query.account,
+            topic: [null]
+        }
+        
+        // get live balance from subscription
+        web3.eth.subscribe('logs', {...sub}, async (error, result) => {
+            if(error){
+                console.log(error)
+            }
+            else{
+                txHash = result
+                const balance = await web3.eth.getBalance(req.query.account)
+                balanceInWei = balance
+
+
+                console.log({
+                    ethBalance: await web3.utils.fromWei(balanceInEth, 'ether')
+                })
+                res.json({
+                    ethBalance: await web3.utils.fromWei(balanceInEth, 'ether')
+                })
+            }
+        })
+
+        const balanceInEth = await web3.utils.fromWei(balanceInWei, 'ether')
+
+        response = ({
+            ethBalance: balanceInEth,
+            weiBalance: balanceInWei,
+        })
+
+        console.log(response)
+        // res.json({
+        //     ethBalance: balanceInEth
+        // })
+    }
+    catch(e){
+        console.log("An error occurred", e)
+    }
+})
+
+app.get('/transactions', async (req, res) => {
+    // const subscription = web3.subsc
+})
+
+app.get('/abi', async (req, res) => {
+    const contract = req.query.contract
+
+    const abi = await funcs.abi(contract)
+    
+    // const data = await funcs.contractData(contract, abi)
+
+    res.json(abi) 
+    console.log(abi)
+})
+
 
 app.get('/send', async (req, res) => {
     const { query } = req
