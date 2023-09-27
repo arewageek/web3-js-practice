@@ -1,0 +1,62 @@
+{
+    "ethereum": {
+        "tesnet": [
+            {"sepoli": "sepolia"},
+            {"goerli": "goerli"}
+        ],
+        "mainnet": "mainnet"
+    },
+    "polygon": {
+        "mainnet": "polygon-mainnet",
+        "testnet": [
+            {"mumbai": "polygon-mumbai"}
+        ]
+    },
+    "optimism": {
+        "mainnet": "optimism-mainnet",
+        "tesnet": [
+            {"georli": "optimism-georli"}
+        ]
+    },
+    "arbitrum": {
+        "mainnet": "arbitrum-mainnet",
+        "tesnet": [
+            {"georli": "arbitrum-georli"}
+        ]
+    },
+    "linear": {
+        "mainnet": "linear-mainnet",
+        "tesnet": "linear-georli"
+    },
+    "palm": {
+        "mainnet": "palm-mainnet",
+        "testnet": "palm-testnet"
+    },
+    "avalanche": {
+        "mainnet": "avalanche-mainnet",
+        "testnet": [
+            {"fuji": "avalanche-fuji"}
+        ]
+    },
+    "near": {
+        "mainnet": "near-mainnet",
+        "testnet": "near-testnet"
+    },
+    "aurora": {
+        "mainnet": "aurora-mainnet",
+        "testnet": "aurora-testnet"
+    },
+    "starknet": {
+        "mainnet": "starknet-mainnet",
+        "testnet": [
+            {"georli": "starknet-georli"},
+            {"georli2": "starknet-goerli2"}
+        ]
+    },
+    "celo": {
+        "mainnet": "celo-mainnet",
+        "testnet":[
+            {"alfajores": "celo-alfajores"}
+        ]
+    }
+}
