@@ -1,6 +1,8 @@
 const { Web3 } = require('web3')
 const Axios = require('axios')
 
+const offlineAbi = require('./abi.json')
+
 // const axios = new Axios()
 
 const provider = new Web3.providers.HttpProvider(process.env.INFURA_COMPLETE_URL)
@@ -12,12 +14,14 @@ const getABI = async contract => {
 }
 
 const contractData = async (contract, abi) => {
-    const token = new web3.eth.Contract(abi, contract)
+    const token = await new web3.eth.Contract(offlineAbi, contract)
 
-    const response = {
-        totalSupply: token.methods
-    }
-    return token.methods.balanceOf('')
+    return await token;
+    
+    // const response = {
+    //     totalSupply: token.methods
+    // }
+    // return token.methods.balanceOf('')
 }
 
 module.exports = {

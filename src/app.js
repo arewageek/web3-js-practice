@@ -114,10 +114,10 @@ app.get('/abi', async (req, res) => {
 
     const abi = await funcs.abi(contract)
     
-    // const data = await funcs.contractData(contract, abi)
+    const data = await funcs.contractData(contract, abi)
 
-    res.json(abi) 
-    console.log(abi)
+    console.log(data)
+    res.json(data) 
 })
 
 
