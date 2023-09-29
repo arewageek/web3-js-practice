@@ -3,6 +3,9 @@ const express = require('express')
 const {Web3} = require('web3')
 require('dotenv').config()
 
+const ContractAbi = require('./abi.json')
+const contractAddress = process.env.CONTRACT
+
 const funcs = require('./functions')
 
 const app = express()
@@ -16,7 +19,7 @@ const web3Http = new Web3(httpProvider)
 // const wsProvider = new Web3.providers.WebsocketProvider(process.env.INFURA_WS_URL)
 // const web3ws = new Web3(wsProvider)
 
-// let web3 = web3ws;
+let web3 = web3Http;
 
 // const switchProvider = () => {
 //     if(web3 == web3Http){
@@ -181,6 +184,25 @@ app.get('/transactions', async (req, res) => {
     }
     
     // console.log(transactions)
+})
+
+app.get('/token/info', async (req, res) => {
+    const contractAddress = req.query.contract
+
+    const abi = await funcs.abi(contractAddress)
+    
+    // console.log(abi)
+    // res.json(abi)
+    // return;
+    const contract = new web3.eth.Contract(ContractAbi, process.env.CONTRACT_ADDRESS)
+    const methods = await contract.methods
+    
+    const token = await methods.totalSupply().call()
+    // console.log(token)
+    // return
+    const tokenInEth = await web3.utils.fromWei(token, 'ether')
+    console.log(`There's a total supply of ${tokenInEth} Ethers`)
+    res.json(`There's a total supply of ${Number(tokenInEth)} Ethers`)
 })
 
 app.listen(port, () => {
