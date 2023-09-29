@@ -4,16 +4,16 @@ const {Web3} = require('web3')
 require('dotenv').config()
 
 const ContractAbi = require('./abi.json')
-const contractAddress = process.env.CONTRACT
+const contractAddress = process.env.CONTRACT_ADDRESS
 
 const funcs = require('./functions')
 
 const app = express()
 
-const ganache = 'localhost:8595'
+const ganache = process.env.GANACHE_RPC
 const port = process.env.PORT || 5000   
 
-const httpProvider = new Web3.providers.HttpProvider(process.env.INFURA_COMPLETE_URL)  
+const httpProvider = new Web3.providers.HttpProvider(ganache)
 const web3Http = new Web3(httpProvider)
 
 // const wsProvider = new Web3.providers.WebsocketProvider(process.env.INFURA_WS_URL)
@@ -203,6 +203,57 @@ app.get('/token/info', async (req, res) => {
     const tokenInEth = await web3.utils.fromWei(token, 'ether')
     console.log(`There's a total supply of ${tokenInEth} Ethers`)
     res.json(`There's a total supply of ${Number(tokenInEth)} Ethers`)
+})
+
+app.get('/contracts/storage', async (req, res) => {
+    const abi = ContractAbi.abi
+    
+    const contract = new web3.eth.Contract(abi, contractAddress)
+    const token = contract.methods
+
+    let data = await token.get().call()
+
+    data = Number(data)
+
+    const change = req.query.value
+    if(change){
+        const addresses = await web3.eth.getAccounts()
+
+        // using the call back method
+
+        // token.add(change).send({
+        //     from: addresses[1]
+        // })
+        // .on('receipt', async store => {
+        //     data = await token.get().call()
+        //     data = Number(data)
+
+        //     // console.log(store)
+        // })  
+        // .on('confirmation', (confirmation, receipt) => {
+        //     console.log({confirmation})
+        // })
+        // .on('error', error => {
+        //     console.log(error)
+        // })
+
+
+        // using async function
+        const store = await token.add(change).send({
+            from: addresses[1]
+        })
+        if(store){
+            data = await token.get().call()
+            data = Number(data)
+
+            console.log(store)
+        }
+    }
+
+    console.log(data)
+    res.json(data)
+
+    
 })
 
 app.listen(port, () => {
